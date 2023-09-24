@@ -4,7 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 
-def draw_feature_matches(img1, img2, pts1, pts2):
+def draw_feature_matches(img1, img2, pts1, pts2, figsize=(10, 10)):
     rgb_img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2RGB)
     rgb_img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
 
@@ -18,16 +18,22 @@ def draw_feature_matches(img1, img2, pts1, pts2):
     img[:h1, :w1, :] = rgb_img1[:height, :width, :]
     img[:h2, w1:, :] = rgb_img2[:height, :width, :]
 
-    for pt1, pt2 in zip(pts1, pts2):
+    cmap = plt.get_cmap("hsv")
+
+    for i, (pt1, pt2) in enumerate(zip(pts1, pts2)):
         pt1 = pt1 * np.array([w1, h1])
         pt2 = pt2 * np.array([w2, h2])
         pt1 = tuple(pt1.astype(int))
         pt2 = tuple(pt2.astype(int) + np.array([w1, 0]))
-        cv2.circle(img, pt1, 5, (0, 255, 0), 2)
-        cv2.circle(img, pt2, 5, (0, 255, 0), 2)
-        cv2.line(img, pt1, pt2, (50, 150, 50), 1)
 
-    _, ax = plt.subplots()
+        color = cmap(i / len(pts1))[:-1]
+        color = tuple([int(c * 255) for c in color])
+
+        cv2.circle(img, pt1, 5, color, -1)
+        cv2.circle(img, pt2, 5, color, -1)
+        cv2.line(img, pt1, pt2, color, 1)
+
+    _, ax = plt.subplots(figsize=figsize)
     ax.imshow(img)
     ax.axis("off")
     plt.show()
