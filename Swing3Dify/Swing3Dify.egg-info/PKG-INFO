@@ -13,3 +13,4 @@ Requires-Dist: scikit-learn
 Requires-Dist: scikit-image
 Requires-Dist: opencv-python-headless
 Requires-Dist: PyOpenGL
+Requires-Dist: tabulate
