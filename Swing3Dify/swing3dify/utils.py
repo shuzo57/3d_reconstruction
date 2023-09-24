@@ -5,15 +5,6 @@ import plotly.graph_objects as go
 
 
 def draw_feature_matches(img1, img2, pts1, pts2):
-    """
-    Draw matched feature points between two images.
-
-    Parameters:
-    - img1: First image.
-    - img2: Second image.
-    - pts1: Normalized feature points in the first image.
-    - pts2: Normalized feature points in the second image.
-    """
     rgb_img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2RGB)
     rgb_img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
 
@@ -36,7 +27,7 @@ def draw_feature_matches(img1, img2, pts1, pts2):
         cv2.circle(img, pt2, 5, (0, 255, 0), 2)
         cv2.line(img, pt1, pt2, (50, 150, 50), 1)
 
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     ax.imshow(img)
     ax.axis("off")
     plt.show()
