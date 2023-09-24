@@ -1,0 +1,10 @@
+opencv-python
+pandas
+numpy
+scipy
+matplotlib
+Pillow
+scikit-learn
+scikit-image
+opencv-python-headless
+PyOpenGL
