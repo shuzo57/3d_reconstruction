@@ -5,52 +5,14 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
+from config import CLUB_CONF_COLUMNS, CLUB_POSITION_COLUMNS, TARGET_CLASS
 from ultralytics import YOLO
-
-logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(message)s")
-
-script_path = os.path.abspath(__file__)
-script_dir = os.path.dirname(script_path)
-model_path = os.path.join(script_dir, "models", "keypoint.pt")
-TARGET_CLASS = 0
-POSITION_COLUMNS = [
-    "frame",
-    "BOX_x",
-    "BOX_y",
-    "BOX_width",
-    "BOX_height",
-    "TOE_x",
-    "TOE_y",
-    "HOSEL_x",
-    "HOSEL_y",
-    "GRIP_x",
-    "GRIP_y",
-]
-CONF_COLUMNS = [
-    "frame",
-    "BOX_conf",
-    "TOE_conf",
-    "HOSEL_conf",
-    "GRIP_conf",
-]
+from utils import get_video_paths
 
 
-def get_video_paths(path):
-    video_extensions = [".MP4", ".mp4", ".avi", ".mkv", ".MOV", ".mov"]
-    video_paths = []
+def YoloClub(input, output, model_path, rotate_direction, save_images) -> None:
+    logging.basicConfig(level=logging.INFO, format="[%(asctime)s] %(message)s")
 
-    if os.path.isfile(path):
-        if any(path.endswith(ext) for ext in video_extensions):
-            video_paths.append(path)
-    elif os.path.isdir(path):
-        for root, _, files in os.walk(path):
-            for file in files:
-                if any(file.endswith(ext) for ext in video_extensions):
-                    video_paths.append(os.path.join(root, file))
-    return video_paths
-
-
-def YoloClub(input, output, rotate_direction, save_images) -> None:
     logging.info(f"Input: {input}")
     if save_images:
         img_dir = os.path.join(output, "img")
@@ -72,8 +34,8 @@ def YoloClub(input, output, rotate_direction, save_images) -> None:
         os.makedirs(video_data_dir, exist_ok=True)
 
         cap = cv2.VideoCapture(video_path)
-        position_df = pd.DataFrame(columns=POSITION_COLUMNS)
-        conf_df = pd.DataFrame(columns=CONF_COLUMNS)
+        position_df = pd.DataFrame(columns=CLUB_POSITION_COLUMNS)
+        conf_df = pd.DataFrame(columns=CLUB_CONF_COLUMNS)
         frame_idx = 0
         while True:
             ret, frame = cap.read()
@@ -137,11 +99,11 @@ def YoloClub(input, output, rotate_direction, save_images) -> None:
                 else:
                     position_df.loc[len(position_df)] = [
                         np.nan if _ != 0 else frame_idx
-                        for _ in range(len(POSITION_COLUMNS))
+                        for _ in range(len(CLUB_POSITION_COLUMNS))
                     ]
                     conf_df.loc[len(conf_df)] = [
                         np.nan if _ != 0 else frame_idx
-                        for _ in range(len(CONF_COLUMNS))
+                        for _ in range(len(CLUB_CONF_COLUMNS))
                     ]
             else:
                 print("")
@@ -168,6 +130,9 @@ if __name__ == "__main__":
         "-o", "--output", help="output directory", default=os.getcwd()
     )
     parser.add_argument(
+        "-p", "--path", help="path to model", default="yolov5s.pt"  # 後で修正
+    )
+    parser.add_argument(
         "-r",
         "--rotate",
         type=str,
@@ -180,4 +145,4 @@ if __name__ == "__main__":
         "-s", "--save_images", help="save images", type=bool, default=False
     )
     args = parser.parse_args()
-    YoloClub(args.input, args.output, args.rotate, args.save_images)
+    YoloClub(args.input, args.output, args.path, args.rotate, args.save_images)
