@@ -1,6 +1,6 @@
 import os
 
-from config import video_extensions
+from .config import video_extensions
 
 
 def get_video_paths(path):

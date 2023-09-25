@@ -5,7 +5,7 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
-from config import POSE_CONF_COLUMNS, POSE_POSITION_COLUMNS, TARGET_CLASS
+from config import POSE_CONF_COLUMNS, POSE_POSITION_COLUMNS
 from ultralytics import YOLO
 from utils import get_video_paths
 
@@ -61,41 +61,18 @@ def YoloPose(input, output, model_path, rotate_direction, save_images) -> None:
 
                 boxes = results[0].cpu().numpy().boxes
                 keypoints = results[0].cpu().numpy().keypoints
-                target_idxs = [
-                    i for i, c in enumerate(boxes.cls) if c == TARGET_CLASS
-                ]
 
-                if len(target_idxs) > 0:
-                    idx = np.argmax(boxes.conf[target_idxs])
+                if len(boxes.conf) > 0:
+                    idx = np.argmax(boxes.conf)
 
-                    box_x, box_y, box_width, box_height = boxes.xywhn[idx]
-                    toe, hosel, grip = keypoints.xyn[idx]
-                    toe_x, toe_y = toe
-                    hosel_x, hosel_y = hosel
-                    grip_x, grip_y = grip
-                    position_df.loc[len(position_df)] = [
-                        frame_idx,
-                        box_x,
-                        box_y,
-                        box_width,
-                        box_height,
-                        toe_x,
-                        toe_y,
-                        hosel_x,
-                        hosel_y,
-                        grip_x,
-                        grip_y,
-                    ]
+                    key_data = keypoints.xyn[idx].flatten()
+                    key_conf = keypoints.conf[idx]
 
-                    box_conf = boxes.conf[idx]
-                    toe_conf, hosel_conf, grip_conf = keypoints.conf[idx]
-                    conf_df.loc[len(conf_df)] = [
-                        frame_idx,
-                        box_conf,
-                        toe_conf,
-                        hosel_conf,
-                        grip_conf,
-                    ]
+                    key_data = np.insert(key_data, 0, frame_idx)
+                    key_conf = np.insert(key_conf, 0, frame_idx)
+
+                    position_df.loc[len(position_df)] = [*key_data]
+                    conf_df.loc[len(conf_df)] = [*key_conf]
                 else:
                     position_df.loc[len(position_df)] = [
                         np.nan if _ != 0 else frame_idx
