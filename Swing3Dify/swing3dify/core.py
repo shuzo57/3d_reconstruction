@@ -21,7 +21,11 @@ def reconstruct_3D(
 def compute_camera_parameters(
     pts1: np.ndarray, pts2: np.ndarray, K: np.ndarray
 ):
-    F, _ = cv2.findFundamentalMat(pts1, pts2, cv2.FM_LMEDS)
+    F, mask = cv2.findFundamentalMat(pts1, pts2, cv2.FM_LMEDS)
+
+    pts1 = pts1[mask.ravel() == 1]
+    pts2 = pts2[mask.ravel() == 1]
+
     E = K.T.dot(F).dot(K)
 
     U, S, Vt = np.linalg.svd(E)
@@ -29,4 +33,4 @@ def compute_camera_parameters(
     R = U.dot(W).dot(Vt)
     T = U[:, 2]
 
-    return R, T
+    return R, T, F
