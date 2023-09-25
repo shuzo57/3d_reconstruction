@@ -1,5 +1,7 @@
 .git
 .venv
 .mypy_cache
-data/data/*
-data/img/*
+
+models/*
+data/*
+!data/sample
