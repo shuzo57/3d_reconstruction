@@ -145,4 +145,4 @@ if __name__ == "__main__":
         "-s", "--save_images", help="save images", type=bool, default=False
     )
     args = parser.parse_args()
-    YoloClub(args.input, args.output, args.path, args.rotate, args.save_images)
+    YoloClub(args.input, args.output, args, args.rotate, args.save_images)
