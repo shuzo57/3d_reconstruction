@@ -4,9 +4,7 @@ numpy
 scipy
 matplotlib
 Pillow
-scikit-learn
-scikit-image
-opencv-python-headless
 plotly
 nbformat
 tabulate
+ultralytics

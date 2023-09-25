@@ -59,12 +59,23 @@ def visualize_3d_points(points_3d):
         x=x, y=y, z=z, mode="markers", marker=dict(color=colors)
     )
 
+    max_range = max(np.ptp(x), np.ptp(y), np.ptp(z))
+
     layout = go.Layout(
         margin=dict(l=0, r=0, b=0, t=0),
         scene=dict(
-            xaxis=dict(nticks=10, range=[np.min(x), np.max(x)]),
-            yaxis=dict(nticks=10, range=[np.min(y), np.max(y)]),
-            zaxis=dict(nticks=10, range=[np.min(z), np.max(z)]),
+            xaxis=dict(
+                nticks=10,
+                range=[np.mean(x) - max_range / 2, np.mean(x) + max_range / 2],
+            ),
+            yaxis=dict(
+                nticks=10,
+                range=[np.mean(y) - max_range / 2, np.mean(y) + max_range / 2],
+            ),
+            zaxis=dict(
+                nticks=10,
+                range=[np.mean(z) - max_range / 2, np.mean(z) + max_range / 2],
+            ),
         ),
     )
 
