@@ -7,6 +7,6 @@ Pillow
 scikit-learn
 scikit-image
 opencv-python-headless
-ploty
+plotly
 nbformat
 tabulate
