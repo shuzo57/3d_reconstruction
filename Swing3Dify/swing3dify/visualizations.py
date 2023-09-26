@@ -1,8 +1,11 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import plotly.graph_objects as go
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+
+from .utils import get_body_vectors
 
 
 def draw_feature_matches(
@@ -154,3 +157,36 @@ def draw_epipolar_lines(
     ax.imshow(img)
     ax.axis("off")
     plt.show()
+
+
+def show_3d_human_pose(
+    df: pd.DataFrame, frame: int, line_width: int = 10, marker_size: int = 3
+) -> None:
+    line_width = 10
+    marker_size = 3
+    graph_mode = "lines+markers"
+
+    vec_data = get_body_vectors(df, frame)
+
+    x_vec_label = list(vec_data.keys())[0::3]
+    y_vec_label = list(vec_data.keys())[1::3]
+    z_vec_label = list(vec_data.keys())[2::3]
+    vec_name = [label.replace("_x", "") for label in x_vec_label]
+
+    fig = go.Figure(
+        data=[
+            go.Scatter3d(
+                x=vec_data[x_label],
+                y=vec_data[y_label],
+                z=vec_data[z_label],
+                mode=graph_mode,
+                line=dict(width=line_width),
+                marker=dict(size=marker_size),
+                name=name,
+            )
+            for x_label, y_label, z_label, name in zip(
+                x_vec_label, y_vec_label, z_vec_label, vec_name
+            )
+        ]
+    )
+    fig.show()
