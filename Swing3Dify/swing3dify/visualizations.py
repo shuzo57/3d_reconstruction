@@ -98,9 +98,9 @@ def plot_3d_points(points_3d):
 
     ax.scatter(x, y, z, c=colors, marker="o")
 
-    ax.set_xlabel("X Label")
-    ax.set_ylabel("Y Label")
-    ax.set_zlabel("Z Label")
+    ax.set_xlabel("x-axis")
+    ax.set_ylabel("y-axis")
+    ax.set_zlabel("z-axis")
 
     plt.show()
 
