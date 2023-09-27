@@ -160,12 +160,13 @@ def draw_epipolar_lines(
 
 
 def show_3d_human_pose(
-    df: pd.DataFrame, frame: int, line_width: int = 10, marker_size: int = 3
+    df: pd.DataFrame,
+    frame: int,
+    line_width: int = 10,
+    marker_size: int = 3,
+    graph_mode: str = "lines+markers",
+    tick_interval: float = 0.05,
 ) -> None:
-    line_width = 10
-    marker_size = 3
-    graph_mode = "lines+markers"
-
     vec_data = get_body_vectors(df, frame)
 
     x_vec_label = list(vec_data.keys())[0::3]
@@ -189,16 +190,56 @@ def show_3d_human_pose(
             )
         ]
     )
+    min_x_value = min(df.filter(like="_x").loc[frame])
+    max_x_value = max(df.filter(like="_x").loc[frame])
+    min_y_value = min(df.filter(like="_y").loc[frame])
+    max_y_value = max(df.filter(like="_y").loc[frame])
+    min_z_value = min(df.filter(like="_z").loc[frame])
+    max_z_value = max(df.filter(like="_z").loc[frame])
+
+    min_x_value = int(min_x_value / tick_interval) * tick_interval
+    max_x_value = int(max_x_value / tick_interval) * tick_interval
+    min_y_value = int(min_y_value / tick_interval) * tick_interval
+    max_y_value = int(max_y_value / tick_interval) * tick_interval
+    min_z_value = int(min_z_value / tick_interval) * tick_interval
+    max_z_value = int(max_z_value / tick_interval) * tick_interval
+
+    scene = dict(
+        xaxis=dict(
+            tickvals=np.arange(
+                min_x_value - tick_interval,
+                max_x_value + tick_interval,
+                tick_interval,
+            )
+        ),
+        yaxis=dict(
+            tickvals=np.arange(
+                min_y_value - tick_interval,
+                max_y_value + tick_interval,
+                tick_interval,
+            )
+        ),
+        zaxis=dict(
+            tickvals=np.arange(
+                min_z_value - tick_interval,
+                max_z_value + tick_interval,
+                tick_interval,
+            )
+        ),
+    )
+
+    fig.update_layout(scene=scene)
     fig.show()
 
 
-def show_3d_swing(
-    df: pd.DataFrame, frame: int, line_width: int = 10, marker_size: int = 3
+def show_3d_swing_pose(
+    df: pd.DataFrame,
+    frame: int,
+    line_width: int = 10,
+    marker_size: int = 3,
+    graph_mode: str = "lines+markers",
+    tick_interval: float = 0.05,
 ) -> None:
-    line_width = 10
-    marker_size = 3
-    graph_mode = "lines+markers"
-
     vec_data = get_swing_vectors(df, frame)
 
     x_vec_label = list(vec_data.keys())[0::3]
@@ -222,4 +263,44 @@ def show_3d_swing(
             )
         ]
     )
+
+    min_x_value = min(df.filter(like="_x").loc[frame])
+    max_x_value = max(df.filter(like="_x").loc[frame])
+    min_y_value = min(df.filter(like="_y").loc[frame])
+    max_y_value = max(df.filter(like="_y").loc[frame])
+    min_z_value = min(df.filter(like="_z").loc[frame])
+    max_z_value = max(df.filter(like="_z").loc[frame])
+
+    min_x_value = int(min_x_value / tick_interval) * tick_interval
+    max_x_value = int(max_x_value / tick_interval) * tick_interval
+    min_y_value = int(min_y_value / tick_interval) * tick_interval
+    max_y_value = int(max_y_value / tick_interval) * tick_interval
+    min_z_value = int(min_z_value / tick_interval) * tick_interval
+    max_z_value = int(max_z_value / tick_interval) * tick_interval
+
+    scene = dict(
+        xaxis=dict(
+            tickvals=np.arange(
+                min_x_value - tick_interval,
+                max_x_value + tick_interval,
+                tick_interval,
+            )
+        ),
+        yaxis=dict(
+            tickvals=np.arange(
+                min_y_value - tick_interval,
+                max_y_value + tick_interval,
+                tick_interval,
+            )
+        ),
+        zaxis=dict(
+            tickvals=np.arange(
+                min_z_value - tick_interval,
+                max_z_value + tick_interval,
+                tick_interval,
+            )
+        ),
+    )
+
+    fig.update_layout(scene=scene)
     fig.show()

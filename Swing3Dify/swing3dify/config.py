@@ -1,6 +1,7 @@
 video_extensions = [".MP4", ".mp4", ".avi", ".mkv", ".MOV", ".mov"]
 
 TARGET_CLASS = 0
+CONF_THR = 0.90
 
 CLUB_POSITION_COLUMNS = [
     "frame",

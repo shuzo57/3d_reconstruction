@@ -1,4 +1,5 @@
 import os
+
 import pandas as pd
 
 from .config import video_extensions
@@ -137,12 +138,12 @@ def get_body_vectors(df: pd.DataFrame, frame):
 
 def get_swing_vectors(df: pd.DataFrame, frame):
     target_dict = {}
-    ClUB_x = df[["CENTER_WRIST_x", "HOSEL_x"]].loc[frame]
-    CLUB_y = df[["CENTER_WRIST_y", "HOSEL_y"]].loc[frame]
-    ClUB_z = df[["CENTER_WRIST_z", "HOSEL_z"]].loc[frame]
-    target_dict["HOSEL_x"] = ClUB_x
-    target_dict["HOSEL_y"] = CLUB_y
-    target_dict["HOSEL_z"] = ClUB_z
+    ClUB_x = df[["GRIP_x", "HOSEL_x"]].loc[frame]
+    CLUB_y = df[["GRIP_y", "HOSEL_y"]].loc[frame]
+    ClUB_z = df[["GRIP_z", "HOSEL_z"]].loc[frame]
+    target_dict["CLUB_x"] = ClUB_x
+    target_dict["CLUB_y"] = CLUB_y
+    target_dict["CLUB_z"] = ClUB_z
 
     EYE_x = df[["LEFT_EYE_x", "RIGHT_EYE_x"]].loc[frame]
     EYE_y = df[["LEFT_EYE_y", "RIGHT_EYE_y"]].loc[frame]
