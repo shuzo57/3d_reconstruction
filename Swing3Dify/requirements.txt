@@ -2,7 +2,9 @@ opencv-python
 pandas
 numpy
 scipy
+seaborn
 matplotlib
+japanize_matplotlib
 Pillow
 plotly
 nbformat
