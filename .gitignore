@@ -3,5 +3,5 @@
 .mypy_cache
 
 models/*
-data/*
-!data/sample
+data/img/*
+data/video/*
