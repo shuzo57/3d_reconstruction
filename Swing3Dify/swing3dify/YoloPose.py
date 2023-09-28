@@ -5,9 +5,9 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
-from config import POSE_CONF_COLUMNS, POSE_POSITION_COLUMNS
+from .config import POSE_CONF_COLUMNS, POSE_POSITION_COLUMNS
 from ultralytics import YOLO
-from utils import get_video_paths
+from .utils import get_video_paths
 
 
 def YoloPose(input, output, model_path, rotate_direction, save_images) -> None:

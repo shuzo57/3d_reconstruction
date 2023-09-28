@@ -5,3 +5,5 @@
 models/*
 data/img/*
 data/video/*
+__pycache__
+*.egg-info

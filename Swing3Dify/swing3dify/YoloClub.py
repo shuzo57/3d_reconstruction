@@ -5,9 +5,9 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
-from config import CLUB_CONF_COLUMNS, CLUB_POSITION_COLUMNS, TARGET_CLASS
+from .config import CLUB_CONF_COLUMNS, CLUB_POSITION_COLUMNS, TARGET_CLASS
 from ultralytics import YOLO
-from utils import get_video_paths
+from .utils import get_video_paths
 
 
 def YoloClub(input, output, model_path, rotate_direction, save_images) -> None:
