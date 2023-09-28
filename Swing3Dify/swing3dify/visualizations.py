@@ -22,7 +22,7 @@ def draw_feature_matches(
     h1, w1, _ = rgb_img1.shape
     h2, w2, _ = rgb_img2.shape
 
-    height = min(h1, h2)
+    height = max(h1, h2)
     width = w1 + w2
 
     img = np.zeros((height, width, 3), dtype=np.uint8)
@@ -312,3 +312,158 @@ def show_3d_swing_pose(
 
     if SAVE_PATH:
         fig.write_html(SAVE_PATH)
+
+
+def show_3d_swing(
+    df: pd.DataFrame,
+    line_width: int = 10,
+    marker_size: int = 3,
+    graph_mode: str = "lines+markers",
+    window: int = None,
+    frame_step: int = 1,
+    SAVE_PATH: str = None,
+) -> None:
+    if window is None:
+        df = df.rolling(window, center=True).mean()
+        df = df.dropna()
+
+    x_max = df.filter(like="_x").max().max()
+    x_min = df.filter(like="_x").min().min()
+    y_max = df.filter(like="_y").max().max()
+    y_min = df.filter(like="_y").min().min()
+    z_max = df.filter(like="_z").max().max()
+    z_min = df.filter(like="_z").min().min()
+
+    min_frame = df.index.min()
+    max_frame = df.index.max()
+
+    frames = []
+    for frame in range(min_frame, max_frame + 1, frame_step):
+        vec_data = get_swing_vectors(df, frame)
+
+        x_vec_label = list(vec_data.keys())[0::3]
+        y_vec_label = list(vec_data.keys())[1::3]
+        z_vec_label = list(vec_data.keys())[2::3]
+        vec_name = [label.replace("_x", "") for label in x_vec_label]
+
+        fig = go.Frame(
+            data=[
+                go.Scatter3d(
+                    x=vec_data[x_label],
+                    y=vec_data[y_label],
+                    z=vec_data[z_label],
+                    mode=graph_mode,
+                    line=dict(width=line_width),
+                    marker=dict(size=marker_size),
+                    name=name,
+                )
+                for x_label, y_label, z_label, name in zip(
+                    x_vec_label, y_vec_label, z_vec_label, vec_name
+                )
+            ],
+            name=f"{frame}",
+            layout=go.Layout(title=f"frame:{frame}"),
+        )
+        frames.append(fig)
+
+    vec_data = get_swing_vectors(df, min_frame)
+    fig = go.Figure(
+        data=[
+            go.Scatter3d(
+                x=vec_data[x_label],
+                y=vec_data[y_label],
+                z=vec_data[z_label],
+                mode=graph_mode,
+                line=dict(width=line_width),
+                marker=dict(size=marker_size),
+                name=name,
+            )
+            for x_label, y_label, z_label, name in zip(
+                x_vec_label, y_vec_label, z_vec_label, vec_name
+            )
+        ],
+        frames=frames,
+    )
+
+    steps = []
+    for frame in range(min_frame, max_frame + 1, frame_step):
+        step = dict(
+            method="animate",
+            args=[
+                [f"{frame}"],
+                dict(frame=dict(duration=1, redraw=True), mode="immediate"),
+            ],
+            label=f"{frame}",
+        )
+        steps.append(step)
+
+    sliders = [
+        dict(
+            steps=steps,
+            active=0,
+            transition=dict(duration=0),
+            currentvalue=dict(
+                font=dict(size=20), prefix="", visible=True, xanchor="right"
+            ),
+        )
+    ]
+
+    fig.update_layout(
+        scene=dict(
+            camera=dict(
+                up=dict(x=0, y=0, z=1.0),
+                center=dict(x=0, y=0, z=0),
+                eye=dict(x=0, y=0.5, z=-1.5),
+            ),
+            xaxis=dict(title="x-axis[m]", range=[x_min, x_max]),
+            yaxis=dict(title="y-axis[m]", range=[y_min, y_max]),
+            zaxis=dict(title="z-axis[m]", range=[z_min, z_max]),
+            aspectmode="manual",
+            aspectratio=dict(x=1.0, y=1.0, z=1.0),
+        ),
+        updatemenus=[
+            dict(
+                type="buttons",
+                showactive=False,
+                xanchor="left",
+                yanchor="top",
+                x=0,
+                y=1,
+                buttons=[
+                    dict(
+                        label="Play",
+                        method="animate",
+                        args=[
+                            None,
+                            dict(
+                                frame=dict(duration=1, redraw=True),
+                                fromcurrent=True,
+                                transition=dict(duration=0),
+                            ),
+                        ],
+                    ),
+                    dict(
+                        label="Pause",
+                        method="animate",
+                        args=[
+                            [None],
+                            dict(
+                                frame=dict(duration=0, redraw=False),
+                                mode="immediate",
+                                transition=dict(duration=0),
+                            ),
+                        ],
+                    ),
+                ],
+            )
+        ],
+        sliders=sliders,
+    )
+
+    fig.show()
+
+    if SAVE_PATH:
+        fig.write_html(
+            SAVE_PATH,
+            auto_play=False,
+        )
