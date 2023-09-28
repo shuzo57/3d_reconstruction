@@ -21,7 +21,7 @@ def reconstruct_3D(
 def compute_camera_parameters(
     pts1: np.ndarray, pts2: np.ndarray, K: np.ndarray
 ):
-    F, mask = cv2.findFundamentalMat(pts1, pts2, cv2.FM_LMEDS)
+    F, mask = cv2.findFundamentalMat(pts1, pts2, cv2.FM_RANSAC)
 
     pts1 = pts1[mask.ravel() == 1]
     pts2 = pts2[mask.ravel() == 1]
