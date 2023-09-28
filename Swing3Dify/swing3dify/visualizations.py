@@ -166,6 +166,7 @@ def show_3d_human_pose(
     marker_size: int = 3,
     graph_mode: str = "lines+markers",
     tick_interval: float = 0.05,
+    SAVE_PATH: str = None,
 ) -> None:
     vec_data = get_body_vectors(df, frame)
 
@@ -231,6 +232,9 @@ def show_3d_human_pose(
     fig.update_layout(scene=scene)
     fig.show()
 
+    if SAVE_PATH:
+        fig.write_html(SAVE_PATH)
+
 
 def show_3d_swing_pose(
     df: pd.DataFrame,
@@ -239,6 +243,7 @@ def show_3d_swing_pose(
     marker_size: int = 3,
     graph_mode: str = "lines+markers",
     tick_interval: float = 0.05,
+    SAVE_PATH: str = None,
 ) -> None:
     vec_data = get_swing_vectors(df, frame)
 
@@ -304,3 +309,6 @@ def show_3d_swing_pose(
 
     fig.update_layout(scene=scene)
     fig.show()
+
+    if SAVE_PATH:
+        fig.write_html(SAVE_PATH)
