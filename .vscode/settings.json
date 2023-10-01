@@ -1,7 +1,7 @@
 {
     "python.analysis.extraPaths": [
         "./Swing3Dify",
-        "./AnomalyDetector"
+        "./AnomalyDetector",
     ],
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"

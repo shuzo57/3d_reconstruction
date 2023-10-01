@@ -1,36 +1,109 @@
-import cv2
 import numpy as np
+import pandas as pd
+
+from .calibration_data import KNOWN_CALIBRATION_DATA
+from .config import ALL_KEYPOINTS, CONF_THR
+from .time_adjustment import calculate_delay_frame
+from .utils import compute_camera_parameters, reconstruct_3D, rescale_data
 
 
-def reconstruct_3D(
-    pts1: np.ndarray,
-    pts2: np.ndarray,
+def dataframe_to_camera_parameters(
+    club1: pd.DataFrame,
+    club2: pd.DataFrame,
+    conf1: pd.DataFrame,
+    conf2: pd.DataFrame,
+    img_width: int,
+    img_height: int,
+    part_name: str = "HOSEL",
+):
+    club1.interpolate(method="linear", both=True, inplace=True)
+    club2.interpolate(method="linear", both=True, inplace=True)
+
+    delay_frame = calculate_delay_frame(club1, club2, part_name)
+
+    new_club1 = club1.copy()
+    new_club2 = club2.copy()
+
+    for c in new_club1.columns:
+        if c.endswith("_x") or c.endswith("_y"):
+            new_club1.loc[conf1["BOX_conf"] <= CONF_THR, c] = None
+            new_club2.loc[conf2["BOX_conf"] <= CONF_THR, c] = None
+
+    new_club1["new_frame"] = new_club1["frame"]
+    new_club2["new_frame"] = new_club2["frame"] + delay_frame
+
+    new_club1 = rescale_data(new_club1, img_width, img_height)
+    new_club2 = rescale_data(new_club2, img_width, img_height)
+
+    pts1 = np.float32(new_club1[[f"{part_name}_x", f"{part_name}_y"]].values)
+    pts2 = np.float32(new_club1[[f"{part_name}_x", f"{part_name}_y"]].values)
+    K = np.array(KNOWN_CALIBRATION_DATA["FDR-AX700"]["mtx"])
+
+    R, T, F = compute_camera_parameters(pts1, pts2, K)
+    return R, T, F
+
+
+def tmp_function(
+    club1: pd.DataFrame,
+    club2: pd.DataFrame,
+    pose1: pd.DataFrame,
+    pose2: pd.DataFrame,
     K: np.ndarray,
     R: np.ndarray,
     T: np.ndarray,
+    img_width: int,
+    img_height: int,
+    part_name: str = "HOSEL",
 ):
-    P1 = K.dot(np.hstack([np.eye(3), np.zeros((3, 1))]))
-    P2 = K.dot(np.hstack([R, T.reshape(3, -1)]))
+    club1.interpolate(method="linear", both=True, inplace=True)
+    club2.interpolate(method="linear", both=True, inplace=True)
 
-    homogeneous_3D = cv2.triangulatePoints(P1, P2, pts1.T, pts2.T)
+    drop_columns = ["BOX_x", "BOX_y", "BOX_width", "BOX_height"]
+    club1.drop(columns=drop_columns, inplace=True)
+    club2.drop(columns=drop_columns, inplace=True)
 
-    reconstructed_3D = homogeneous_3D[:3] / homogeneous_3D[3]
-    return reconstructed_3D
+    pose1.interpolate(method="linear", both=True, inplace=True)
+    pose2.interpolate(method="linear", both=True, inplace=True)
 
+    delay_frame = calculate_delay_frame(club1, club2, part_name)
 
-def compute_camera_parameters(
-    pts1: np.ndarray, pts2: np.ndarray, K: np.ndarray
-):
-    F, mask = cv2.findFundamentalMat(pts1, pts2, cv2.FM_RANSAC)
+    club1_min = club1.index.min()
+    club1_max = club1.index.max()
+    club2_min = club2.index.min() + delay_frame
+    club2_max = club2.index.max() + delay_frame
 
-    pts1 = pts1[mask.ravel() == 1]
-    pts2 = pts2[mask.ravel() == 1]
+    min_index = max(club1_min, club2_min)
+    max_index = min(club1_max, club2_max)
 
-    E = K.T.dot(F).dot(K)
+    df1 = pose1.merge(club1, on="frame")
+    df2 = pose2.merge(club2, on="frame")
 
-    U, S, Vt = np.linalg.svd(E)
-    W = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]])
-    R = U.dot(W).dot(Vt)
-    T = U[:, 2]
+    df1 = df1.iloc[min_index:max_index].copy()
+    df2 = df2.iloc[
+        min_index - delay_frame : max_index - delay_frame  # noqa
+    ].copy()
 
-    return R, T, F
+    df1.reset_index(drop=True, inplace=True)
+    df2.reset_index(drop=True, inplace=True)
+
+    for c in df1.columns:
+        if c.endswith("_x") or c.endswith("_width"):
+            df1[c] = df1[c] * img_width
+            df2[c] = df2[c] * img_width
+        elif c.endswith("_y") or c.endswith("_height"):
+            df1[c] = df1[c] * img_height
+            df2[c] = df2[c] * img_height
+
+    keypoint_labels = np.array(
+        [[f"{k}_x", f"{k}_y", f"{k}_z"] for k in ALL_KEYPOINTS]
+    ).flatten()
+    df = pd.DataFrame(columns=keypoint_labels)
+
+    for frame in df1.index:
+        pts1 = np.float32(df1.iloc[frame, 1:].values).reshape((-1, 2))
+        pts2 = np.float32(df2.iloc[frame, 1:].values).reshape((-1, 2))
+
+        reconstructed_3d = reconstruct_3D(pts1, pts2, K, R, T)
+        df.loc[len(df)] = reconstructed_3d.T.flatten()
+    df.insert(0, "frame", range(min_index, max_index))
+    return df

@@ -2,6 +2,8 @@ video_extensions = [".MP4", ".mp4", ".avi", ".mkv", ".MOV", ".mov"]
 
 TARGET_CLASS = 0
 CONF_THR = 0.90
+DEFAULT_IMG_HEIGHT = 1920
+DEFAULT_IMG_WIDTH = 1080
 
 CLUB_POSITION_COLUMNS = [
     "frame",
