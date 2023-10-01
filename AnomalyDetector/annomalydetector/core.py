@@ -2,17 +2,6 @@ import numpy as np
 import pandas as pd
 import torch
 
-from .config import (
-    EPOCHS,
-    HIDDEN_DIM,
-    INPUT_DIM,
-    LR,
-    SEED,
-    SEQ_LENGTH,
-    THRESHOLD_FACTOR,
-    THRESHOLD_PERCENTILE,
-    WINDOW_SIZE,
-)
 from .model import Autoencoder
 from .utils import (
     LossFunctionType,
@@ -23,25 +12,24 @@ from .utils import (
 
 
 def detect_anomalies_with_lstm_autoencoder(
-    df: pd.DataFrame,
-    part_name: str,
-    seq_length: int = SEQ_LENGTH,
-    hidden_dim: int = HIDDEN_DIM,
-    epochs: int = EPOCHS,
-    lr: float = LR,
+    part_data: np.ndarray,
+    seq_length: int = 10,
+    hidden_dim: int = 30,
+    epochs: int = 200,
+    lr: float = 1e-3,
     loss_type: LossFunctionType = LossFunctionType.MSE,
     verbose: bool = False,
-    threshold_percentile: int = THRESHOLD_PERCENTILE,
-    seed: int = SEED,
+    threshold_percentile: int = 95,
+    seed: int = 42,
 ):
     set_seeds(seed)
 
-    part_data = df[[f"{part_name}_x", f"{part_name}_y"]].values
+    _, input_dim = part_data.shape
 
     part_sequences = create_sequences(part_data, seq_length)
     part_sequences_tensor = torch.FloatTensor(part_sequences)
 
-    model = Autoencoder(INPUT_DIM, hidden_dim, seq_length)
+    model = Autoencoder(input_dim, hidden_dim, seq_length)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
     criterion = get_loss_function(loss_type)
 
@@ -66,13 +54,13 @@ def detect_anomalies_with_lstm_autoencoder(
     threshold = np.percentile(reconstruction_errors, threshold_percentile)
     anomaly_indices = np.where(reconstruction_errors > threshold)[0]
 
-    return anomaly_indices
+    return anomaly_indices, reconstruction_errors
 
 
 def detect_anomalies_with_moving_avg_std(
     data: np.ndarray,
-    window_size: int = WINDOW_SIZE,
-    threshold_factor: float = THRESHOLD_FACTOR,
+    window_size: int = 10,
+    threshold_factor: float = 2.0,
 ):
     moving_avg = np.convolve(
         data, np.ones(window_size) / window_size, mode="valid"
@@ -100,8 +88,8 @@ def detect_anomalies_with_moving_avg_std(
 def detect_anomalies_with_moving_avg_std_2d(
     df: pd.DataFrame,
     part_name: str,
-    window_size: int = WINDOW_SIZE,
-    threshold_factor: float = THRESHOLD_FACTOR,
+    window_size: int = 10,
+    threshold_factor: float = 2.0,
 ):
     data_x = df[f"{part_name}_x"].values
     data_y = df[f"{part_name}_y"].values
