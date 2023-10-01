@@ -9,7 +9,9 @@ from .config import (
     LR,
     SEED,
     SEQ_LENGTH,
+    THRESHOLD_FACTOR,
     THRESHOLD_PERCENTILE,
+    WINDOW_SIZE,
 )
 from .model import Autoencoder
 from .utils import (
@@ -63,5 +65,75 @@ def detect_anomalies_with_lstm_autoencoder(
 
     threshold = np.percentile(reconstruction_errors, threshold_percentile)
     anomaly_indices = np.where(reconstruction_errors > threshold)[0]
+
+    return anomaly_indices
+
+
+def detect_anomalies_with_moving_avg_std(
+    data: np.ndarray,
+    window_size: int = WINDOW_SIZE,
+    threshold_factor: float = THRESHOLD_FACTOR,
+):
+    moving_avg = np.convolve(
+        data, np.ones(window_size) / window_size, mode="valid"
+    )
+    moving_std = [
+        np.std(data[i - window_size : i])  # noqa
+        for i in range(window_size, len(data) + 1)
+    ]
+
+    upper_bound = moving_avg + threshold_factor * np.array(moving_std)
+    lower_bound = moving_avg - threshold_factor * np.array(moving_std)
+
+    anomaly_indices = (
+        np.where(
+            (data[window_size - 1 :] > upper_bound)  # noqa
+            | (data[window_size - 1 :] < lower_bound)  # noqa
+        )[0]
+        + window_size
+        - 1
+    )
+
+    return anomaly_indices
+
+
+def detect_anomalies_with_moving_avg_std_2d(
+    df: pd.DataFrame,
+    part_name: str,
+    window_size: int = WINDOW_SIZE,
+    threshold_factor: float = THRESHOLD_FACTOR,
+):
+    data_x = df[f"{part_name}_x"].values
+    data_y = df[f"{part_name}_y"].values
+
+    moving_avg_x = np.convolve(
+        data_x, np.ones(window_size) / window_size, mode="valid"
+    )
+    moving_avg_y = np.convolve(
+        data_y, np.ones(window_size) / window_size, mode="valid"
+    )
+
+    distances = np.sqrt(
+        (data_x[window_size - 1 :] - moving_avg_x) ** 2  # noqa
+        + (data_y[window_size - 1 :] - moving_avg_y) ** 2  # noqa
+    )
+
+    moving_avg_distance = np.convolve(
+        distances, np.ones(window_size) / window_size, mode="valid"
+    )
+    moving_std_distance = [
+        np.std(distances[i - window_size : i])  # noqa
+        for i in range(window_size, len(distances) + 1)
+    ]
+
+    upper_bound = moving_avg_distance + threshold_factor * np.array(
+        moving_std_distance
+    )
+
+    anomaly_indices = (
+        np.where(distances[window_size - 1 :] > upper_bound)[0]  # noqa
+        + window_size
+        - 1
+    )
 
     return anomaly_indices
