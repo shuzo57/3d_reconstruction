@@ -14,4 +14,5 @@ download_from_drive() {
 }
 
 download_from_drive "1G1YQkpQmPK9LXy6CJkTOjgeAs7dE9-mX" "club-s.pt"
+download_from_drive "1kbNVbFINoeFOfl-uYiYmKq1CTwtJYmrX" "club-l.pt"
 download_from_drive "1BJSpv0SU_od0WAs0VHCSJ-ydJpUKzgyY" "pose-l.pt"
