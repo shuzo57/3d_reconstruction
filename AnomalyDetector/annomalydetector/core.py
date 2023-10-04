@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import torch
 
 from .model import Autoencoder
@@ -60,55 +59,31 @@ def detect_anomalies_with_lstm_autoencoder(
 def detect_anomalies_with_moving_avg_std(
     data: np.ndarray,
     window_size: int = 10,
-    threshold_factor: float = 2.0,
+    threshold_factor: float = 2.5,
 ):
-    moving_avg = np.convolve(
-        data, np.ones(window_size) / window_size, mode="valid"
-    )
-    moving_std = [
-        np.std(data[i - window_size : i])  # noqa
-        for i in range(window_size, len(data) + 1)
-    ]
+    num_dimensions = data.shape[1]
+    squared_residuals_per_dimension = []
 
-    upper_bound = moving_avg + threshold_factor * np.array(moving_std)
-    lower_bound = moving_avg - threshold_factor * np.array(moving_std)
+    for dim in range(num_dimensions):
+        dim_data = data[:, dim]
 
-    anomaly_indices = (
-        np.where(
-            (data[window_size - 1 :] > upper_bound)  # noqa
-            | (data[window_size - 1 :] < lower_bound)  # noqa
-        )[0]
-        + window_size
-        - 1
-    )
+        moving_avg = np.convolve(
+            dim_data, np.ones(window_size) / window_size, mode="valid"
+        )
 
-    return anomaly_indices
-
-
-def detect_anomalies_with_moving_avg_std_2d(
-    df: pd.DataFrame,
-    part_name: str,
-    window_size: int = 10,
-    threshold_factor: float = 2.0,
-):
-    data_x = df[f"{part_name}_x"].values
-    data_y = df[f"{part_name}_y"].values
-
-    moving_avg_x = np.convolve(
-        data_x, np.ones(window_size) / window_size, mode="valid"
-    )
-    moving_avg_y = np.convolve(
-        data_y, np.ones(window_size) / window_size, mode="valid"
-    )
+        squared_residuals = (
+            dim_data[window_size - 1 :] - moving_avg  # noqa
+        ) ** 2
+        squared_residuals_per_dimension.append(squared_residuals)
 
     distances = np.sqrt(
-        (data_x[window_size - 1 :] - moving_avg_x) ** 2  # noqa
-        + (data_y[window_size - 1 :] - moving_avg_y) ** 2  # noqa
+        np.sum(np.array(squared_residuals_per_dimension), axis=0)
     )
 
     moving_avg_distance = np.convolve(
         distances, np.ones(window_size) / window_size, mode="valid"
     )
+
     moving_std_distance = [
         np.std(distances[i - window_size : i])  # noqa
         for i in range(window_size, len(distances) + 1)
