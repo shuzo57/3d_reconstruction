@@ -43,7 +43,7 @@ def dataframe_to_camera_parameters(
     return R, T, F
 
 
-def tmp_function(
+def generate_reconstructed_3d_data(
     club1: pd.DataFrame,
     club2: pd.DataFrame,
     pose1: pd.DataFrame,

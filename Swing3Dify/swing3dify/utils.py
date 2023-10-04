@@ -55,6 +55,10 @@ def get_video_paths(path):
     return video_paths
 
 
+def get_basename(path):
+    return os.path.splitext(os.path.basename(path))[0]
+
+
 def calculate_body_part_center(df: pd.DataFrame, target: str):
     for axis in ["x", "y", "z"]:
         if target != "MOUTH":

@@ -1,5 +1,15 @@
 video_extensions = [".MP4", ".mp4", ".avi", ".mkv", ".MOV", ".mov"]
 
+POSE_DIR_NAME = "pose"
+CLUB_DIR_NAME = "club"
+IMG_DIR_NAME = "img"
+DATA_DIR_NAME = "data"
+RECONSTRUCTED_DIR_NAME = "reconstructed"
+
+POSITION_FILE_NAME = "position_data.csv"
+CONFIDENCE_FILE_NAME = "confidence_data.csv"
+RECONSTRUCTED_FILE_NAME = "3d_position_data.csv"
+
 TARGET_CLASS = 0
 CONF_THR = 0.90
 DEFAULT_IMG_HEIGHT = 1920
