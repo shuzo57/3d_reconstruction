@@ -35,6 +35,18 @@ def dataframe_to_camera_parameters(
     new_club1 = rescale_data(new_club1, img_width, img_height)
     new_club2 = rescale_data(new_club2, img_width, img_height)
 
+    index1 = set(
+        new_club1[~new_club1.isnull().any(axis=1)]["new_frame"].values
+        )
+    index2 = set(
+        new_club2[~new_club2.isnull().any(axis=1)]["new_frame"].values
+        )
+
+    common_index = np.array(sorted(list(index1 & index2)))
+
+    new_club1 = new_club1[new_club1["new_frame"].isin(common_index)].copy()
+    new_club2 = new_club2[new_club2["new_frame"].isin(common_index)].copy()    
+
     pts1 = np.float32(new_club1[[f"{part_name}_x", f"{part_name}_y"]].values)
     pts2 = np.float32(new_club1[[f"{part_name}_x", f"{part_name}_y"]].values)
     K = np.array(KNOWN_CALIBRATION_DATA["FDR-AX700"]["mtx"])
