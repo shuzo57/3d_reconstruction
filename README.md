@@ -4,7 +4,7 @@
 chmod +x download_models.sh
 ./download_models.sh
 
-chomd +x download_sample_videos.sh
+chmod +x download_sample_videos.sh
 ./download_sample_videos.sh
 ```
 
