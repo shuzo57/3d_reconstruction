@@ -13,5 +13,6 @@ download_from_drive() {
     curl -Lb /tmp/cookie "https://drive.google.com/uc?export=download&confirm=${CODE}&id=${FILE_ID}" -o "${DOWNLOAD_FOLDER}/${FILE_NAME}"
 }
 
-download_from_drive "1U3dSjXypKJ7YjyKcjjDKPC_nDjJED89m" "club-v1.pt"
+download_from_drive "1U3dSjXypKJ7YjyKcjjDKPC_nDjJED89m" "club-v1.pt" # baseline model
 download_from_drive "1BJSpv0SU_od0WAs0VHCSJ-ydJpUKzgyY" "pose-l.pt"
+download_from_drive "1dL1tfWogB9s6rfj5Oe6Hx4CWGtUKNqlU" "club-yokota.pt" # for yokota club house
