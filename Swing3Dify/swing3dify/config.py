@@ -10,6 +10,8 @@ POSITION_FILE_NAME = "position_data.csv"
 CONFIDENCE_FILE_NAME = "confidence_data.csv"
 RECONSTRUCTED_FILE_NAME = "3d_position_data.csv"
 
+SAVE_VIDEO_EXT = ".mp4"
+
 TARGET_CLASS = 0
 CONF_THR = 0.90
 DEFAULT_IMG_HEIGHT = 1920

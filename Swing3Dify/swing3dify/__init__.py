@@ -1,6 +1,7 @@
 from .calibration_data import *  # noqa
 from .config import *  # noqa
 from .core import *  # noqa
+from .skeleton_plotter import *  # noqa
 from .time_adjustment import *  # noqa
 from .utils import *  # noqa
 from .visualizations import *  # noqa
