@@ -4,7 +4,7 @@ import pandas as pd
 from .calibration_data import KNOWN_CALIBRATION_DATA
 from .config import ALL_KEYPOINTS, CONF_THR
 from .time_adjustment import calculate_delay_frame
-from .utils import compute_camera_parameters, reconstruct_3D, rescale_data
+from .utils import compute_camera_parameters, reconstruct_3D
 
 
 def dataframe_to_camera_parameters(
@@ -12,8 +12,6 @@ def dataframe_to_camera_parameters(
     club2: pd.DataFrame,
     conf1: pd.DataFrame,
     conf2: pd.DataFrame,
-    img_width: int,
-    img_height: int,
     part_name: str = "HOSEL",
 ):
     club1.interpolate(method="linear", both=True, inplace=True)
@@ -32,9 +30,6 @@ def dataframe_to_camera_parameters(
     new_club1["new_frame"] = new_club1["frame"]
     new_club2["new_frame"] = new_club2["frame"] + delay_frame
 
-    new_club1 = rescale_data(new_club1, img_width, img_height)
-    new_club2 = rescale_data(new_club2, img_width, img_height)
-
     index1 = set(
         new_club1[~new_club1.isnull().any(axis=1)]["new_frame"].values
     )
@@ -48,11 +43,11 @@ def dataframe_to_camera_parameters(
     new_club2 = new_club2[new_club2["new_frame"].isin(common_index)].copy()
 
     pts1 = np.float32(new_club1[[f"{part_name}_x", f"{part_name}_y"]].values)
-    pts2 = np.float32(new_club1[[f"{part_name}_x", f"{part_name}_y"]].values)
+    pts2 = np.float32(new_club2[[f"{part_name}_x", f"{part_name}_y"]].values)
     K = np.array(KNOWN_CALIBRATION_DATA["FDR-AX700"]["mtx"])
 
-    R, T, F = compute_camera_parameters(pts1, pts2, K)
-    return R, T, F
+    R, T, F = compute_camera_parameters(pts1, pts2, K)  # type: ignore
+    return R, T, F, K
 
 
 def generate_reconstructed_3d_data(
@@ -63,8 +58,6 @@ def generate_reconstructed_3d_data(
     K: np.ndarray,
     R: np.ndarray,
     T: np.ndarray,
-    img_width: int,
-    img_height: int,
     part_name: str = "HOSEL",
 ):
     club1.interpolate(method="linear", both=True, inplace=True)
@@ -97,14 +90,6 @@ def generate_reconstructed_3d_data(
 
     df1.reset_index(drop=True, inplace=True)
     df2.reset_index(drop=True, inplace=True)
-
-    for c in df1.columns:
-        if c.endswith("_x") or c.endswith("_width"):
-            df1[c] = df1[c] * img_width
-            df2[c] = df2[c] * img_width
-        elif c.endswith("_y") or c.endswith("_height"):
-            df1[c] = df1[c] * img_height
-            df2[c] = df2[c] * img_height
 
     keypoint_labels = np.array(
         [[f"{k}_x", f"{k}_y", f"{k}_z"] for k in ALL_KEYPOINTS]

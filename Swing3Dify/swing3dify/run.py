@@ -18,7 +18,7 @@ from .core import (
     dataframe_to_camera_parameters,
     generate_reconstructed_3d_data,
 )
-from .utils import get_basename
+from .utils import get_basename, rescale_data
 from .YoloClub import YoloClub
 from .YoloPose import YoloPose
 
@@ -113,14 +113,18 @@ def run(
         img_width = img_width1
         img_height = img_height1
 
+        logging.info("Rescale data")
+        pose1 = rescale_data(pose1, img_width, img_height)
+        pose2 = rescale_data(pose2, img_width, img_height)
+        club1 = rescale_data(club1, img_width, img_height)
+        club2 = rescale_data(club2, img_width, img_height)
+
     logging.info("Compute camera parameters")
-    R, T, F = dataframe_to_camera_parameters(
-        club1, club2, conf1, conf2, img_width, img_height
-    )
+    R, T, _, K = dataframe_to_camera_parameters(club1, club2, conf1, conf2)
 
     logging.info("Reconstruct 3D data")
     reconstructed_3d_df = generate_reconstructed_3d_data(
-        club1, club2, pose1, pose2, F, R, T, img_width, img_height
+        club1, club2, pose1, pose2, K, R, T
     )
 
     logging.info("Save reconstructed 3D data")
