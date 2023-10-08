@@ -118,8 +118,8 @@ def drawlines(
     img2 = cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR)
     for r, pt1, pt2 in zip(lines, pts1, pts2):
         color = tuple(np.random.randint(0, 255, 3).tolist())
-        x0, y0 = map(int, [0, -r[2] / r[1]])
-        x1, y1 = map(int, [c, -(r[2] + r[0] * c) / r[1]])
+        x0, y0 = map(int, [0, -r[2] / r[1]])  # type: ignore
+        x1, y1 = map(int, [c, -(r[2] + r[0] * c) / r[1]])  # type: ignore
         img1 = cv2.line(img1, (x0, y0), (x1, y1), color, 1)
         img1 = cv2.circle(img1, tuple(map(int, pt1)), 5, color, -1)
         img2 = cv2.circle(img2, tuple(map(int, pt2)), 5, color, -1)
@@ -166,7 +166,7 @@ def show_3d_human_pose(
     marker_size: int = 3,
     graph_mode: str = "lines+markers",
     tick_interval: float = 0.05,
-    SAVE_PATH: str = None,
+    SAVE_PATH: str = "",
 ) -> None:
     vec_data = get_body_vectors(df, frame)
 
@@ -243,7 +243,7 @@ def show_3d_swing_pose(
     marker_size: int = 3,
     graph_mode: str = "lines+markers",
     tick_interval: float = 0.05,
-    SAVE_PATH: str = None,
+    SAVE_PATH: str = "",
 ) -> None:
     vec_data = get_swing_vectors(df, frame)
 
@@ -319,9 +319,9 @@ def show_3d_swing(
     line_width: int = 10,
     marker_size: int = 3,
     graph_mode: str = "lines+markers",
-    window: int = None,
+    window: int = 1,
     frame_step: int = 1,
-    SAVE_PATH: str = None,
+    SAVE_PATH: str = "",
 ) -> None:
     if window is None:
         df = df.rolling(window, center=True).mean()
