@@ -188,7 +188,7 @@ def run(
         gray_img1, gray_img2, pts1, pts2, F, SAVE_PATH=save_path2
     )
 
-    print("save: 3D reconstruction")
+    print("save: 3D Swing animation")
     save_path1 = os.path.join(
         save_dir1, f"3d_reconstruction_{video_name1}.html"
     )
