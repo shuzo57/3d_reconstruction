@@ -3,8 +3,8 @@
 .mypy_cache
 
 models/*
-data/img/*
-data/video/*
+data/*
+!data/sample/*
 __pycache__
 *.egg-info
 

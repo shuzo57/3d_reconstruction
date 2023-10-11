@@ -7,7 +7,7 @@ from .time_adjustment import calculate_delay_frame
 from .utils import compute_camera_parameters, reconstruct_3D
 
 
-def dataframe_to_camera_parameters(
+def get_synced_data(
     club1: pd.DataFrame,
     club2: pd.DataFrame,
     conf1: pd.DataFrame,
@@ -44,7 +44,14 @@ def dataframe_to_camera_parameters(
 
     pts1 = np.float32(new_club1[[f"{part_name}_x", f"{part_name}_y"]].values)
     pts2 = np.float32(new_club2[[f"{part_name}_x", f"{part_name}_y"]].values)
-    K = np.array(KNOWN_CALIBRATION_DATA["FDR-AX700"]["mtx"])
+
+    return pts1, pts2
+
+
+def synced_data_to_camera_parameters(
+    pts1: np.ndarray, pts2: np.ndarray, camera_type: str = "FDR-AX700"
+):
+    K = np.array(KNOWN_CALIBRATION_DATA[camera_type]["mtx"])
 
     R, T, F = compute_camera_parameters(pts1, pts2, K)  # type: ignore
     return R, T, F, K

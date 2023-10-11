@@ -5,6 +5,8 @@ CLUB_DIR_NAME = "club"
 IMG_DIR_NAME = "img"
 DATA_DIR_NAME = "data"
 RECONSTRUCTED_DIR_NAME = "data_3d"
+FIGURE_DIR_NAME = "figure"
+FIGURE_EXT = ".png"
 
 POSITION_FILE_NAME = "position_data.csv"
 CONFIDENCE_FILE_NAME = "confidence_data.csv"

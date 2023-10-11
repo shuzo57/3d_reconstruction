@@ -15,6 +15,7 @@ def draw_feature_matches(
     pts2: np.ndarray,
     RATE_FALG: bool = False,
     figsize: tuple = (10, 10),
+    SAVE_PATH: str = "",
 ):
     rgb_img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2RGB)
     rgb_img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2RGB)
@@ -48,7 +49,12 @@ def draw_feature_matches(
     _, ax = plt.subplots(figsize=figsize)
     ax.imshow(img)
     ax.axis("off")
-    plt.show()
+
+    if SAVE_PATH != "":
+        plt.savefig(SAVE_PATH)
+        plt.close()
+    else:
+        plt.show()
 
 
 def visualize_3d_points(points_3d):
@@ -112,7 +118,6 @@ def drawlines(
     pts1: np.ndarray,
     pts2: np.ndarray,
 ):
-    """img1, img2: gray images"""
     r, c = img1.shape
     img1 = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
     img2 = cv2.cvtColor(img2, cv2.COLOR_GRAY2BGR)
@@ -133,8 +138,8 @@ def draw_epipolar_lines(
     pts2: np.ndarray,
     F: np.ndarray,
     figsize: tuple = (10, 10),
+    SAVE_PATH: str = "",
 ):
-    """img1, img2: gray images"""
     lines1 = cv2.computeCorrespondEpilines(pts2.reshape(-1, 1, 2), 2, F)
     lines1 = lines1.reshape(-1, 3)
     img5, _ = drawlines(img1, img2, lines1, pts1, pts2)
@@ -156,7 +161,12 @@ def draw_epipolar_lines(
     _, ax = plt.subplots(figsize=figsize)
     ax.imshow(img)
     ax.axis("off")
-    plt.show()
+
+    if SAVE_PATH != "":
+        plt.savefig(SAVE_PATH)
+        plt.close()
+    else:
+        plt.show()
 
 
 def show_3d_human_pose(
@@ -230,10 +240,11 @@ def show_3d_human_pose(
     )
 
     fig.update_layout(scene=scene)
-    fig.show()
 
-    if SAVE_PATH:
+    if SAVE_PATH != "":
         fig.write_html(SAVE_PATH)
+    else:
+        fig.show()
 
 
 def show_3d_swing_pose(
@@ -308,10 +319,11 @@ def show_3d_swing_pose(
     )
 
     fig.update_layout(scene=scene)
-    fig.show()
 
-    if SAVE_PATH:
+    if SAVE_PATH != "":
         fig.write_html(SAVE_PATH)
+    else:
+        fig.show()
 
 
 def show_3d_swing(
@@ -459,11 +471,10 @@ def show_3d_swing(
         ],
         sliders=sliders,
     )
-
-    fig.show()
-
-    if SAVE_PATH:
+    if SAVE_PATH != "":
         fig.write_html(
             SAVE_PATH,
             auto_play=False,
         )
+    else:
+        fig.show()
