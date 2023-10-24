@@ -81,6 +81,50 @@ def rescale_data(df, width, height):
     return df
 
 
+def scale_data_to_real_distance(
+    df, start_point, end_point, real_world_distance
+):
+    """
+    Scale the data such that the distance between the start and end points
+    in the first frame matches the given real world distance.
+
+    Parameters:
+    - df: DataFrame containing the 3D coordinates
+    - start_point: Name of the start body point (e.g., "LEFT_EYE")
+    - end_point: Name of the end body point (e.g., "RIGHT_EYE")
+    - real_world_distance: The actual distance between the start
+    and end points in the real world
+
+    Returns:
+    - DataFrame with scaled 3D coordinates
+    """
+    # Compute the distance in the first frame
+    start_coords = np.array(
+        [
+            df[start_point + "_x"].iloc[0],
+            df[start_point + "_y"].iloc[0],
+            df[start_point + "_z"].iloc[0],
+        ]
+    )
+    end_coords = np.array(
+        [
+            df[end_point + "_x"].iloc[0],
+            df[end_point + "_y"].iloc[0],
+            df[end_point + "_z"].iloc[0],
+        ]
+    )
+    current_distance = np.linalg.norm(start_coords - end_coords)
+
+    # Compute the scaling factor
+    scaling_factor = real_world_distance / current_distance
+
+    # Apply the scaling factor to the entire dataframe
+    scaled_df = df.copy()
+    scaled_df.iloc[:, 1:] = scaled_df.iloc[:, 1:] * scaling_factor
+
+    return scaled_df
+
+
 def get_body_vectors(df: pd.DataFrame, frame):
     target_dict = {}
 

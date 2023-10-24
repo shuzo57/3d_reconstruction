@@ -131,6 +131,7 @@ def run(
 
     logging.info("Compute camera parameters")
     pts1, pts2 = get_synced_data(club1, club2, conf1, conf2)
+    print(f"Number of feature matches: {len(pts1)}")
     R, T, F, K = synced_data_to_camera_parameters(pts1, pts2)
 
     logging.info("Reconstruct 3D data")

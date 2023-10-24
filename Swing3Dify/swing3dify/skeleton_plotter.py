@@ -2,7 +2,7 @@ import argparse
 import os
 
 import cv2
-from ultralytics import YOLO
+from ultralytics import YOLO  # type: ignore
 
 from .config import SAVE_VIDEO_EXT
 from .utils import get_basename, get_video_paths
