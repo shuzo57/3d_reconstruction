@@ -1,7 +1,0 @@
-pandas
-numpy
-matplotlib
---find-links https://download.pytorch.org/whl/cu117
-torch
-torchvision
-torchaudio
