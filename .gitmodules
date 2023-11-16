@@ -1,3 +1,6 @@
 [submodule "Swing3Dify"]
 	path = Swing3Dify
 	url = https://github.com/shuzo57/Swing3Dify.git
+[submodule "AnomalyDetector"]
+	path = AnomalyDetector
+	url = git@github.com:shuzo57/AnomalyDetector.git
