@@ -4,7 +4,7 @@
 
 models/*
 data/*
-!data/sample/*
+!data/sample*
 __pycache__
 *.egg-info
 
