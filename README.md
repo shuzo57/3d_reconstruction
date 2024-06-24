@@ -14,7 +14,7 @@ chmod +x download_sample_videos.sh
 
 Sample Usage:
 ```Bash
-python3 -m swing3dify -f1 videos/sample_video1.mp4 -f2 videos/sample_video2.mp4 -o . -p models/pose-l.pt -c models/club-v1.pt
+python3 -m swing3dify -f1 videos/sample_video1.mp4 -f2 videos/sample_video2.mp4 -p models/pose-l.pt -c models/club-v2.pt
 ```
 
 # DoTo List
